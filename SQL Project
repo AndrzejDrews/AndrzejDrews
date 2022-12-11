@@ -1,0 +1,196 @@
+-- Projekt 1 - SQL
+-- Celem jest utworzenie bazy danych oraz przeprowadzenie na niej wielu operacji.
+
+
+-- 1. Stwórz Bazę „Sklep odzieżowy”
+
+CREATE DATABASE Sklep_Odzieżowy;
+USE Sklep_Odzieżowy;
+
+-- 2. Utwórz tabelę „Producenci” z kolumnami:
+
+CREATE TABLE Producenci (
+ID_Producenta INT PRIMARY KEY NOT NULL,
+Nazwa_producenta TEXT,
+Adres_producenta TEXT,
+NIP_Producenta BIGINT,
+Data_podpisania_umowy DATE);
+
+-- 3. Utwórz tabelę „Produkty” z kolumnami:
+
+CREATE TABLE Produkty (
+ID_Produktu INT PRIMARY KEY,
+ID_Producenta INT,
+Nazwa_Produktu TEXT,
+Opis_Produktu TEXT,
+Cena_Netto_Zakupu INT,
+Cena_Brutto_Zakupu INT,
+Cena_Netto_Sprzedaży INT,
+Cena_Brutto_Sprzedaży INT,
+Procent_VAT_Sprzedaży INT);
+
+-- 4. Utwórz tabelę „Zamówienia” z kolumnami:
+
+CREATE TABLE Zamówienia (
+ID_Zamówienia INT PRIMARY KEY,
+ID_Klienta INT,
+ID_Produktu INT,
+Data_Zamówienia DATE);
+
+-- 5. Utwórz tabelę „Klienci” z kolumnami:
+
+CREATE TABLE Klienci (
+ID_Klienta INT PRIMARY KEY,
+ID_Zamówienia INT,
+Imię TEXT,
+Nazwisko TEXT,
+Adres TEXT);
+
+-- 6. Połącz tabele ze sobą za pomocą kluczy obcych:
+-- Produkty – Producenci
+
+ALTER TABLE Produkty
+ADD FOREIGN KEY (ID_Producenta) REFERENCES Producenci(ID_Producenta);
+
+-- Zamówienia – Produkty
+
+ALTER TABLE Zamówienia
+ADD FOREIGN KEY (ID_Produktu) REFERENCES Produkty(ID_Produktu);
+
+-- Zamówienia - Klienci
+
+ALTER TABLE Klienci
+ADD FOREIGN KEY (ID_Zamówienia) REFERENCES Zamówienia(ID_Zamówienia);
+
+-- 7. Każdą tabelę uzupełnij danymi:
+
+INSERT INTO Producenci VALUES
+(1,'ADIDAS', 'Warszawa',1234563344,'1992-02-03'),
+(2,'GANT','Poznań',3320091245,'2009-09-03'),
+(3,'LEVIS','Lublin',5557284295,'2015-08-01'),
+(4,'DC','Kraków',9876543212,'2022-07-25');
+
+INSERT INTO PRODUKTY VALUES 
+    (1,1,'Spodnie','Jeansy',55,67,66,81,23),
+    (2,2,'Koszulka','Do spania',40,49,48,59,23),
+    (3,3,'Buty','Sportowe',299,367,358,441,23),
+    (4,4,'Szalik','Na zimę ',20,21,24,29,23),
+    (5,4,'Rękawiczki','Zimowe',150,184,180,194,8),
+    (6,3,'Stanik','PushUp',80,98,96,118,23),
+    (7,2,'Majtki','Stringi',80,98,96,118,23),
+    (8,1,'Skarpetki','Stópki',10,12,12,12,23),
+    (9,1,'Kapelusz','Letni',60,64,72,88,8),
+    (10,2,'Okulary','Stylowe',499,613,598,736,23),
+    (11,2,'Bluza','Ciepła',350,430,420,516,23),
+    (12,3,'Sweter','Dżinsowy',350,378,420,453,8),
+    (13,3,'Koszula','W kratę',200,246,240,295,23),
+    (14,4,'Garnitur','Elegancki',1299,1597,1558,1917,23),
+    (15,3,'Sukienka','Krótka',199,244,238,293,23),
+    (16,2,'Leginsy','Wytrzymałe',59,725,708,870,23),
+    (17,1,'Marynarka','Na okazję',699,754,838,905,8),
+    (18,2,'Spódnica','Elegancka',129,158,154,190,23),
+    (19,2,'Koszulka','Niebieska',49,60,58,72,23),
+    (20,1,'Spodnie','Materiałowe',250,307,300,369,23);
+
+INSERT INTO Zamówienia VALUES
+    (1,4,2,'2022-06-01'),
+    (2,6,5,'2022-08-20'),
+    (3,8,1,'2022-09-10'),
+    (4,10,10,'2022-09-10'),
+    (5,11,19,'2022-09-10'),
+    (6,30,20,'2022-03-03'),
+    (7,41,17,'2022-03-07'),
+    (8,90,15,'2022-03-20'),
+    (9,91,14,'2022-07-10'),
+    (10,95,1,'2022-04-14');
+    
+INSERT INTO Klienci VALUES
+    (4,1,'Andrzej','Kowalski','Warszawa'),
+    (6,2,'Janusz','Twardowski','Warszawa'),
+    (8,3,'Marek','Maj','Warszawa'),
+    (10,4,'Dotora','Nieznana','Poznań'),
+    (11,5,'Iwona','Nietaki','Poznań'),
+    (30,6,'Krystyna','Strąbała','Poznań'),
+    (41,7,'Maja','Kalińska','Warszawa'),
+    (90,8,'Adam','Rybak','Kraków'),
+    (91,9,'Piotr','Drwal','Gdańsk'),
+    (95,10,'Mateusz','Kot','Wrocław');
+
+-- 8. Wyświetl wszystkie produkty z wszystkimi danymi od producenta który znajduje się na pozycji 1 w tabeli „Producenci”
+
+CREATE TEMPORARY TABLE SORTOWANIE
+SELECT * FROM Produkty
+WHERE ID_Producenta=1;
+
+-- 9. Posortuj te produkty alfabetycznie po nazwie
+
+SELECT * FROM SORTOWANIE
+ORDER BY Nazwa_Produktu ASC;
+
+-- 10. Wylicz średnią cenę za produktu od producenta z pozycji 1
+
+SELECT ROUND(AVG(Cena_Brutto_Sprzedaży)) AS 'Średnia Cena'
+FROM SORTOWANIE;
+
+-- 11. Wyświetl dwie grupy produktów tego producenta:
+-- Połowa najtańszych to grupa: „Tanie”
+-- Pozostałe to grupa: „Drogie”
+
+SELECT Nazwa_Produktu,
+CASE
+    WHEN Cena_Brutto_Sprzedaży>=145 THEN 'Tanie'
+    WHEN Cena_Brutto_Sprzedaży<145 THEN 'Drogie'
+    ELSE Cena_Brutto_Sprzedaży<0
+END AS TANIE_DROGIE
+FROM SORTOWANIE;
+
+-- 12. Wyświetl produkty zamówione, wyświetlając tylko ich nazwę
+
+SELECT Nazwa_produktu
+FROM Zamówienia
+LEFT JOIN Produkty
+ON Zamówienia.ID_Produktu = Produkty.ID_Produktu;
+
+-- 13. Wyświetl wszystkie produkty zamówione – ograniczając wyświetlanie do 5 pozycji
+
+SELECT * FROM Zamówienia 
+LIMIT 5;
+
+-- 14. Policz łączną wartość wszystkich zamówień
+
+SELECT SUM(Cena_Brutto_Sprzedaży) AS 'Łączna_wartość_brutto', SUM(Cena_Netto_Sprzedaży) AS 'Łączna_wartość_Netto'
+FROM Zamówienia
+LEFT JOIN PRODUKTY
+ON Zamówienia.ID_Produktu = Produkty.ID_Produktu;
+
+-- 15. Wyświetl wszystkie zamówienia wraz z nazwą produktu sortując je wg daty od najstarszego do najnowszego
+
+SELECT *
+FROM Zamówienia
+LEFT JOIN Produkty
+ON Zamówienia.ID_Produktu = Produkty.ID_Produktu
+ORDER BY Data_Zamówienia;
+
+-- 16. Sprawdź czy w tabeli produkty masz uzupełnione wszystkie dane – wyświetl pozycje dla których brakuje danych
+
+SELECT * FROM Zamówienia
+WHERE (ID_Zamówienia IS NULL) OR (ID_Klienta IS NULL) OR (ID_Produktu IS NULL) OR (Data_Zamówienia IS NULL);
+
+-- 17. Wyświetl produkt najczęściej sprzedawany wraz z jego ceną
+
+SELECT SUM(ID_Produktu) FROM Zamówienia;
+
+SELECT COUNT(Nazwa_produktu) AS 'TOTAL', Nazwa_produktu, Cena_Brutto_Sprzedaży
+FROM Zamówienia
+LEFT JOIN Produkty
+ON Zamówienia.ID_Produktu = Produkty.ID_Produktu
+GROUP BY Nazwa_produktu
+ORDER BY 'total'
+LIMIT 1;
+
+-- 18. Znajdź dzień w którym najwięcej zostało złożonych zamówień
+
+SELECT data_zamówienia, COUNT(data_zamówienia) AS "Najwięcej_zamówień"
+FROM Zamówienia
+GROUP BY data_zamówienia 
+ORDER BY COUNT("Najwięcej_zamówień") DESC;
